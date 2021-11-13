@@ -34,7 +34,8 @@ func repeatInfinitely(words ...string) {
 //fmt=formatting
 //auto type inference works inside func(:=)
 func main() {
-	total := superAdd(1,2,3,4,5,6)
-	println(total)
-	fmt.Println(canIPlay(18))
+	a := 2
+	b := &a
+	*b = 10
+	fmt.Println(*b, a)
 }
