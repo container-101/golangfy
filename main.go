@@ -2,19 +2,20 @@ package main
 
 import (
 	"fmt"
-	"golwee/banking"
+	"golwee/mydict"
 )
 
 func main() {
-	account := banking.CreateBankAccount("woodi")
-	account.Deposit(10)
-	fmt.Println(account.Balance())
-	err := account.Withdraw(20)
+	dictionary := mydict.Dictionary{}
+	baseWord := "hello"
+	dictionary.Add(baseWord, "First")
+	err := dictionary.Delete(baseWord)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(account)
-	account.ChangeOwner("mircat")
-	fmt.Println(account)
-
+	word, err2 := dictionary.Search(baseWord)
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	fmt.Println(word)
 }
