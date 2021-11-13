@@ -1,7 +1,10 @@
-package golwee
+package main
 
-import "fmt"
-
+import (
+	"golwee/whale"
+)
+//Entry Point
+//fmt=formatting
 func main() {
-	fmt.Println("hello world")
+	whale.SayGoodbye()
 }
