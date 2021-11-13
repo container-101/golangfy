@@ -1,20 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"golwee/banking"
+)
 
-type person struct {
-	name string
-	age int
-	favFood []string
-}
 
-//Entry Point
-//fmt=formatting
-//auto type inference works inside func(:=)
+
 func main() {
-	favFood := []string{"ramen"}
-	woodi :=person{
-		name:"woodi",age:18,favFood: favFood,
+	account := banking.CreateBankAccount("woodi")
+	account.Deposit(10)
+	fmt.Println(account.Balance())
+	err :=account.Withdraw(20)
+	if err != nil {
+		fmt.Println(err)
 	}
-	fmt.Println(woodi.name)
+	fmt.Println(account.Balance())
 }
