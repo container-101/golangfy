@@ -1,21 +1,44 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"golwee/mydict"
+	"net/http"
 )
 
+var errRequestFailed = errors.New("Request failed")
+
 func main() {
-	dictionary := mydict.Dictionary{}
-	baseWord := "hello"
-	dictionary.Add(baseWord, "First")
-	err := dictionary.Delete(baseWord)
-	if err != nil {
-		fmt.Println(err)
+	var results = make(map[string]string)
+	urls := []string{
+		"https://www.airbnb.com/",
+		"https://www.google.com/",
+		"https://www.amazon.com/",
+		"https://www.reddit.com/",
+		"https://www.google.com/",
+		"https://soundcloud.com/",
+		"https://www.facebook.com/",
+		"https://www.instagram.com/",
+		"https://academy.nomadcoders.co/",
 	}
-	word, err2 := dictionary.Search(baseWord)
-	if err2 != nil {
-		fmt.Println(err2)
+	for _, url := range urls {
+		err := hitURL(url)
+		if err != nil {
+			results[url] = "FAILED"
+		} else {
+			results[url] = "OK"
+		}
 	}
-	fmt.Println(word)
+	for url, result := range results {
+		fmt.Println(url, result)
+	}
+}
+
+func hitURL(url string) error {
+	fmt.Println("Checking URL", url)
+	res, err := http.Get(url)
+	if err != nil || res.StatusCode >= 400 {
+		return errRequestFailed
+	}
+	return nil
 }
