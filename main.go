@@ -1,44 +1,19 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
+	"time"
 )
 
-var errRequestFailed = errors.New("Request failed")
-
+//go is only available at main function running
 func main() {
-	var results = make(map[string]string)
-	urls := []string{
-		"https://www.airbnb.com/",
-		"https://www.google.com/",
-		"https://www.amazon.com/",
-		"https://www.reddit.com/",
-		"https://www.google.com/",
-		"https://soundcloud.com/",
-		"https://www.facebook.com/",
-		"https://www.instagram.com/",
-		"https://academy.nomadcoders.co/",
-	}
-	for _, url := range urls {
-		err := hitURL(url)
-		if err != nil {
-			results[url] = "FAILED"
-		} else {
-			results[url] = "OK"
-		}
-	}
-	for url, result := range results {
-		fmt.Println(url, result)
-	}
+	go sexyCount("woodi")
+	sexyCount("mircat")
 }
 
-func hitURL(url string) error {
-	fmt.Println("Checking URL", url)
-	res, err := http.Get(url)
-	if err != nil || res.StatusCode >= 400 {
-		return errRequestFailed
+func sexyCount(person string) {
+	for i := 0; i < 10; i++ {
+		fmt.Println(person, "is sexy", i)
+		time.Sleep(time.Second)
 	}
-	return nil
 }
