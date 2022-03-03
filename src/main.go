@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -23,13 +24,23 @@ var baseURL string = "https://kr.indeed.com/jobs?q=python&limit=50"
 
 func main() {
 	jobs := make([]extractedJob, 0)
+	c := make(chan []extractedJob)
+	start := time.Now()
+
 	totalPages := getPages()
 	for i := 0; i < totalPages; i++ {
-		result := getPage(i)
-		jobs = append(jobs, result...)
+		go getPage(i, c)
 	}
+
+	for i := 0; i < totalPages; i++ {
+		jobs = append(jobs, <-c...)
+	}
+
 	writeJobs(jobs)
+	end := time.Now()
+
 	fmt.Println("Done, extracted", len(jobs), "jobs")
+	fmt.Println("Execution time:", end.Sub(start))
 }
 
 func writeJobs(jobs []extractedJob) {
@@ -49,8 +60,9 @@ func writeJobs(jobs []extractedJob) {
 	}
 }
 
-func getPage(pageIdx int) []extractedJob {
+func getPage(pageIdx int, mainChannel chan<- []extractedJob) {
 	jobs := make([]extractedJob, 0)
+	c := make(chan extractedJob)
 	pageURL := baseURL + "&start=" + strconv.Itoa(pageIdx*50)
 	res, err := http.Get(pageURL)
 	checkErr(err)
@@ -65,17 +77,21 @@ func getPage(pageIdx int) []extractedJob {
 	searchCards := doc.Find(".tapItem")
 
 	searchCards.Each(func(i int, s *goquery.Selection) {
-		job := extractJob(s)
-		jobs = append(jobs, job)
+		go extractJob(s, c)
 	})
-	return jobs
+
+	for i := 0; i < searchCards.Length(); i++ {
+		extractedJob := <-c
+		jobs = append(jobs, extractedJob)
+	}
+	mainChannel <- jobs
 }
 
-func extractJob(s *goquery.Selection) extractedJob {
+func extractJob(s *goquery.Selection, c chan<- extractedJob) {
 	url, _ := s.Attr("data-jk")
 	title := cleanString(s.Find("h2>span").Text())
 	location := cleanString(s.Find(".companyLocation").Text())
-	return extractedJob{
+	c <- extractedJob{
 		url:      url,
 		title:    title,
 		location: location,
