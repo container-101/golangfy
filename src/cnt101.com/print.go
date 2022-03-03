@@ -1,7 +1,7 @@
-package whale
+package cnt101
 
 import "fmt"
 
-func SayGoodbye(){
+func SayGoodbye() {
 	fmt.Println("Custom Module")
 }
