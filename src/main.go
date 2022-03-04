@@ -1,32 +1,32 @@
 package main
 
 import (
-	"golwee/src/scrapper"
-	"net/http"
+	"fmt"
+	"log"
 	"os"
-	"strings"
 
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
-func handleHome(c echo.Context) error {
-	return c.File("public/index.html")
-}
-
-func handleScrape(c echo.Context) error {
-	term := strings.ToLower(scrapper.CleanString(c.FormValue("term")))
-	if term == "" {
-		return c.String(http.StatusBadRequest, "No term provided")
-	}
-	filePath := "public/" + term + "-jobs.csv"
-	defer os.Remove(filePath)
-	scrapper.Scrape(term)
-	return c.Attachment(filePath, term+"-jobs.csv")
-}
-
 func main() {
-	e := echo.New()
-	e.GET("/", handleHome)
-	e.POST("/scrape", handleScrape)
-	e.Logger.Fatal(e.Start(":1323"))
+	// load env
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	port := ":" + os.Getenv("PORT")
+	ginMode := os.Getenv("GIN_MODE")
+	baseURL := os.Getenv("BASE_URL")
+
+	gin.SetMode(ginMode)
+	router := gin.Default()
+
+	router.SetTrustedProxies([]string{baseURL})
+
+	router.GET("/", func(c *gin.Context) {
+		fmt.Printf("ClientIP: %s\n", c.ClientIP())
+	})
+	router.Run(port)
 }
